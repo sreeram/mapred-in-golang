@@ -1,6 +1,6 @@
 Getting Going with Go
 
-The best starting point to learn Go is a quick read/scan of: https://www.golang-book.com/books/intro. Go is a lot like C. It has got pointers, structs, etc.
+The best starting point to learn Go is a quick read of https://www.golang-book.com/books/intro. Go is a lot like C. It has got pointers, structs, etc.
 Concurrency constructs in Go
 
 Obviously, the intention of the project is to learn the concurrency aspects of the Go language. The two key concurrency constructs in Go are Goroutines and Channels.
