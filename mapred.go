@@ -13,7 +13,7 @@ import (
 )
 
 type mapJob struct {
-	wordsBag   []string
+	wordsBag   *[]string
 	startIndex int
 	length     int
 }
@@ -33,7 +33,7 @@ func mapper(c1 chan mapJob, c2 chan reduceJob, wg *sync.WaitGroup) {
 }
 
 func mapfunc(job mapJob, c chan reduceJob) {
-	j := job.wordsBag
+	j := *job.wordsBag
 	start := job.startIndex
 	ct := job.length
 
@@ -100,15 +100,15 @@ func main() {
 	now := time.Now()
 	startTimeNanos := now.UnixNano()
 	numCPU := runtime.NumCPU()
-	fmt.Println("NumCPU: ", numCPU)
+	//fmt.Println("NumCPU: ", numCPU)
 	c1 := make(chan mapJob, numCPU)
 	c2 := make(chan reduceJob, numCPU)
 
 	go mapper(c1, c2, &wg)
 
-	numWordsPerMap := 100000
+	numWordsPerMap := 200000
 	for i := 0; i < len(buffer); i += numWordsPerMap {
-		c1 <- mapJob{buffer, i, myMin(numWordsPerMap, len(buffer)-i)}
+		c1 <- mapJob{&buffer, i, myMin(numWordsPerMap, len(buffer)-i)}
 	}
 
 	finalCounts := make(map[string]int)
@@ -117,7 +117,7 @@ func main() {
 	wg.Wait()
 	now = time.Now()
 	endTimeNanos := now.UnixNano()
-        fmt.Println("mapred: ", "numCPU=". numCPU, "Took ", (endTimeNanos-startTimeNanos)/(1000), "micros")
+	fmt.Println("mapred(", "numCPU=", numCPU, " wordsPerMap=", numWordsPerMap, " took ", (endTimeNanos-startTimeNanos)/1000, "micros")
 	//fmt.Println(finalCounts)
 
 	now = time.Now()
@@ -129,5 +129,5 @@ func main() {
 	now = time.Now()
 	endTimeNanos = now.UnixNano()
 	//fmt.Println(counts)
-	fmt.Println("Serial version Took ", (endTimeNanos-startTimeNanos)/1000, "micros")
+	fmt.Println("serial(", "numCPU=", numCPU, " wordsPerMap=", numWordsPerMap, " took ", (endTimeNanos-startTimeNanos)/1000, "micros")
 }
